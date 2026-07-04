@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "Enzo World Arena",
+    "slug": "enzo-world-arena",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "scheme": "enzoworld",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.enzoworld.arena"
+    },
+    "android": {
+      "package": "com.enzoworld.arena",
+      "adaptiveIcon": {
+        "backgroundColor": "#11100E"
+      }
+    }
+  }
+}
