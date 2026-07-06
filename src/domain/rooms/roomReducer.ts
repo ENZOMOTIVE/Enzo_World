@@ -1,9 +1,15 @@
 import { GameId } from "../games/catalog";
-import { createCarromState, setCarromPower, takeCarromShot } from "../games/carrom";
+import {
+  createCarromState,
+  selectCarromCoin,
+  setCarromPower,
+  takeCarromShot
+} from "../games/carrom";
 import {
   createChessState,
   makeChessMove,
-  selectChessSquare
+  selectChessSquare,
+  undoChessMove
 } from "../games/chess";
 import { currentUserId, mockPlayers, mockRooms } from "./mockData";
 import {
@@ -33,6 +39,7 @@ export type ArenaAction =
   | { type: "NAVIGATE"; route: ArenaRoute }
   | { type: "SELECT_GAME"; gameId: GameId }
   | { type: "OPEN_ROOM"; roomId: string }
+  | { type: "QUICK_PLAY"; gameId: GameId }
   | { type: "CREATE_ROOM"; input: CreateRoomInput }
   | { type: "JOIN_ROOM"; roomId: string }
   | { type: "ADD_LOCAL_RIVAL"; roomId: string }
@@ -42,6 +49,8 @@ export type ArenaAction =
   | { type: "SEND_MESSAGE"; roomId: string; text: string }
   | { type: "SELECT_CHESS_SQUARE"; roomId: string; square: string }
   | { type: "MAKE_CHESS_MOVE"; roomId: string; from: string; to: string }
+  | { type: "UNDO_CHESS_MOVE"; roomId: string }
+  | { type: "SELECT_CARROM_COIN"; roomId: string; coinId: string }
   | { type: "SET_CARROM_POWER"; roomId: string; power: number }
   | { type: "TAKE_CARROM_SHOT"; roomId: string; power: number };
 
@@ -71,6 +80,19 @@ export function arenaReducer(state: ArenaState, action: ArenaAction): ArenaState
         ...state,
         route: { name: "room", roomId: action.roomId }
       };
+
+    case "QUICK_PLAY": {
+      const room = createQuickPlayRoom(action.gameId, state);
+
+      return {
+        ...state,
+        rooms: {
+          ...state.rooms,
+          [room.id]: room
+        },
+        route: { name: "room", roomId: room.id }
+      };
+    }
 
     case "CREATE_ROOM": {
       const room = createRoom(action.input, state.currentUserId);
@@ -185,6 +207,20 @@ export function arenaReducer(state: ArenaState, action: ArenaAction): ArenaState
         };
       });
 
+    case "UNDO_CHESS_MOVE":
+      return updateRoom(state, action.roomId, (room) => {
+        if (room.state.kind !== "chess" || room.status === "waiting") {
+          return room;
+        }
+
+        return {
+          ...room,
+          status: "in_progress",
+          state: undoChessMove(room.state),
+          events: [createEvent("Chess move undone."), ...room.events]
+        };
+      });
+
     case "SET_CARROM_POWER":
       return updateRoom(state, action.roomId, (room) => {
         if (room.state.kind !== "carrom" || room.status !== "in_progress") {
@@ -194,6 +230,18 @@ export function arenaReducer(state: ArenaState, action: ArenaAction): ArenaState
         return {
           ...room,
           state: setCarromPower(room.state, action.power)
+        };
+      });
+
+    case "SELECT_CARROM_COIN":
+      return updateRoom(state, action.roomId, (room) => {
+        if (room.state.kind !== "carrom" || room.status !== "in_progress") {
+          return room;
+        }
+
+        return {
+          ...room,
+          state: selectCarromCoin(room.state, action.coinId)
         };
       });
 
@@ -260,6 +308,34 @@ function createRoom(input: CreateRoomInput, hostPlayerId: string): GameRoom {
   };
 }
 
+function createQuickPlayRoom(gameId: GameId, state: ArenaState): GameRoom {
+  const id = `room-play-${Date.now().toString(36)}`;
+  const rivalId = getLocalRivalId(state);
+  const playerIds = [state.currentUserId, rivalId];
+  const seats = playerIds.map((playerId, index) => ({
+    ...createSeat(playerId, index === 0, gameId, index),
+    isReady: true
+  }));
+  const title = gameId === "chess" ? "Chess Game" : "Carrom Game";
+
+  return {
+    id,
+    code: createRoomCode(gameId),
+    title,
+    gameId,
+    visibility: "private",
+    status: "in_progress",
+    maxPlayers: 2,
+    buyInCoins: 0,
+    createdAt: new Date().toISOString(),
+    seats,
+    spectators: 0,
+    messages: [],
+    events: [createEvent("Game started.")],
+    state: gameId === "chess" ? createChessState() : createCarromState(playerIds)
+  };
+}
+
 function joinRoom(room: GameRoom, playerId: string) {
   if (
     room.status === "in_progress" ||
@@ -302,6 +378,13 @@ function addLocalRival(room: GameRoom, state: ArenaState) {
     ],
     events: [createEvent(`${rival.displayName} joined as a local rival.`), ...room.events]
   });
+}
+
+function getLocalRivalId(state: ArenaState) {
+  return (
+    Object.values(state.players).find((player) => player.id !== state.currentUserId)?.id ??
+    state.currentUserId
+  );
 }
 
 function refreshRoomStatus(room: GameRoom): GameRoom {

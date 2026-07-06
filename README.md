@@ -1,14 +1,15 @@
 # Enzo World Arena
 
-Enzo World Arena is a React Native + Expo arena app for board-game rooms. The first launch slice targets Android first while staying compatible with iOS.
+Enzo World Arena is a React Native + Expo board-game arena. The app is Android-first, simple enough for kids to use, and still compatible with iOS.
 
 ## Current App Slice
 
 - Expo SDK 57 TypeScript app.
-- Local room state with create, join, ready, start, leave, room chat, and match events.
+- One-tap local play from the home screen.
+- Local table state with create, join, ready, start, leave, and match events.
 - Game catalog with Chess Blitz and Carrom Strike.
-- Chess board uses `chess.js` for legal move validation and check/draw results.
-- Carrom prototype models turn order, power, pocketing, scoring, and match completion.
+- Chess uses `chess.js` for legal moves, turns, undo, move history, and check/draw results.
+- Carrom supports coin selection, aim line, power choice, pocket scoring, turns, and match completion.
 - No database yet. The state layer is intentionally isolated so a backend adapter can replace local reducer actions later.
 
 ## Run Locally
@@ -28,6 +29,21 @@ For type checks:
 
 ```bash
 npm run typecheck
+```
+
+## Android Build Path
+
+The emulator/dev build runs with:
+
+```bash
+npm run android
+```
+
+Preview APK and production build profiles are defined in `eas.json`:
+
+```bash
+npx eas build --platform android --profile preview
+npx eas build --platform android --profile production
 ```
 
 ## Project Structure

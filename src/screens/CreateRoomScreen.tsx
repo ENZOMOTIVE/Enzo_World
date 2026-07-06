@@ -30,8 +30,8 @@ export function CreateRoomScreen({ route }: CreateRoomScreenProps) {
   return (
     <Screen>
       <AppHeader
-        title="Create Room"
-        subtitle="Configure a table locally now; the same input shape can be sent to a room service later."
+        title="New Table"
+        subtitle="Choose a game."
         onBack={() => dispatch({ type: "NAVIGATE", route: { name: "rooms", gameId } })}
       />
 
@@ -49,9 +49,9 @@ export function CreateRoomScreen({ route }: CreateRoomScreenProps) {
           </View>
         </Field>
 
-        <Field label="Room name">
+        <Field label="Table name">
           <TextInput
-            placeholder={`${selectedGame?.shortName ?? "Arena"} room`}
+            placeholder={`${selectedGame?.shortName ?? "Game"} table`}
             placeholderTextColor={colors.textSubtle}
             value={title}
             onChangeText={setTitle}
@@ -88,7 +88,7 @@ export function CreateRoomScreen({ route }: CreateRoomScreenProps) {
         </Field>
 
         <ActionButton
-          title="Create room"
+          title="Make table"
           icon="checkmark"
           onPress={() =>
             dispatch({

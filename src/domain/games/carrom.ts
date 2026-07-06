@@ -14,11 +14,13 @@ export interface ArenaCarromState {
   turnOrder: string[];
   strikerX: number;
   power: number;
+  selectedCoinId?: string;
   coins: CarromCoin[];
   scores: Record<string, number>;
   turnCount: number;
   queenCovered: boolean;
   lastShot?: string;
+  winnerId?: string;
   result?: string;
 }
 
@@ -46,10 +48,27 @@ export function createCarromState(playerIds: string[]): ArenaCarromState {
     turnOrder: playerIds,
     strikerX: 50,
     power: 60,
+    selectedCoinId: "white-1",
     coins: initialCoinLayout.map((coin) => ({ ...coin })),
     scores,
     turnCount: 0,
     queenCovered: false
+  };
+}
+
+export function selectCarromCoin(
+  state: ArenaCarromState,
+  coinId: string
+): ArenaCarromState {
+  const coin = state.coins.find((item) => item.id === coinId && !item.pocketedBy);
+
+  if (!coin) {
+    return state;
+  }
+
+  return {
+    ...state,
+    selectedCoinId: coin.id
   };
 }
 
@@ -73,16 +92,29 @@ export function takeCarromShot(
     return {
       nextState: {
         ...state,
-        result: getWinnerText(state)
+        winnerId: getWinnerId(state.scores),
+        result: "Game over."
       },
       event: "Board already cleared."
     };
   }
 
   const normalizedPower = Math.max(20, Math.min(100, power));
-  const shotSeed = state.turnCount + Math.floor(normalizedPower / 10);
-  const pocketsCoin = normalizedPower >= 85 || shotSeed % 4 !== 1;
   const activePlayerId = state.activePlayerId || state.turnOrder[0] || "";
+  const targetCoin = state.selectedCoinId
+    ? availableCoins.find((coin) => coin.id === state.selectedCoinId)
+    : undefined;
+
+  if (!targetCoin) {
+    return {
+      nextState: state,
+      event: "Pick a coin before shooting."
+    };
+  }
+
+  const distanceFromCenter = Math.hypot(targetCoin.x - 50, targetCoin.y - 50);
+  const needsPower = targetCoin.color === "queen" ? 60 : 42 + Math.round(distanceFromCenter);
+  const pocketsCoin = normalizedPower >= needsPower;
 
   if (!pocketsCoin) {
     const nextPlayerId = getNextPlayerId(state);
@@ -92,27 +124,17 @@ export function takeCarromShot(
         ...state,
         activePlayerId: nextPlayerId,
         power: normalizedPower,
+        selectedCoinId: undefined,
         turnCount: state.turnCount + 1,
-        lastShot: "Missed. Turn passed."
+        lastShot: `${coinLabel(targetCoin.color)} missed.`
       },
-      event: "Carrom shot missed. Turn passed."
+      event: "Carrom shot missed."
     };
   }
 
-  const selectedCoinIndex =
-    (state.turnCount + Math.floor(normalizedPower / 5)) % availableCoins.length;
-  const selectedCoin = availableCoins[selectedCoinIndex];
-
-  if (!selectedCoin) {
-    return {
-      nextState: state,
-      event: "No coin available for the shot."
-    };
-  }
-
-  const points = selectedCoin.color === "queen" ? 3 : 1;
+  const points = targetCoin.color === "queen" ? 3 : 1;
   const coins = state.coins.map((coin) =>
-    coin.id === selectedCoin.id
+    coin.id === targetCoin.id
       ? {
           ...coin,
           pocketedBy: activePlayerId
@@ -124,6 +146,7 @@ export function takeCarromShot(
     [activePlayerId]: (state.scores[activePlayerId] ?? 0) + points
   };
   const boardCleared = coins.every((coin) => coin.pocketedBy);
+  const winnerId = boardCleared ? getWinnerId(scores) : undefined;
 
   return {
     nextState: {
@@ -131,14 +154,16 @@ export function takeCarromShot(
       coins,
       scores,
       power: normalizedPower,
+      selectedCoinId: undefined,
       turnCount: state.turnCount + 1,
-      queenCovered: state.queenCovered || selectedCoin.color === "queen",
-      lastShot: `${coinLabel(selectedCoin.color)} pocketed for ${points} point${
+      queenCovered: state.queenCovered || targetCoin.color === "queen",
+      winnerId,
+      lastShot: `${coinLabel(targetCoin.color)} pocketed for ${points} point${
         points === 1 ? "" : "s"
       }.`,
-      result: boardCleared ? getWinnerText({ ...state, scores }) : undefined
+      result: boardCleared ? "Game over." : undefined
     },
-    event: `Carrom ${coinLabel(selectedCoin.color).toLowerCase()} pocketed.`
+    event: `Carrom ${coinLabel(targetCoin.color).toLowerCase()} pocketed.`
   };
 }
 
@@ -162,9 +187,7 @@ function coinLabel(color: CarromCoinColor) {
   return color === "white" ? "White coin" : "Black coin";
 }
 
-function getWinnerText(state: Pick<ArenaCarromState, "scores">) {
-  const sortedScores = Object.entries(state.scores).sort((a, b) => b[1] - a[1]);
-  const [winnerId, score] = sortedScores[0] ?? ["", 0];
-
-  return winnerId ? `${winnerId} wins with ${score} points.` : "Carrom match finished.";
+function getWinnerId(scores: Record<string, number>) {
+  const sortedScores = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  return sortedScores[0]?.[0];
 }

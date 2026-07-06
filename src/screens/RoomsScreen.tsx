@@ -24,10 +24,10 @@ export function RoomsScreen({ route }: RoomsScreenProps) {
   return (
     <Screen>
       <AppHeader
-        title={game ? `${game.shortName} Rooms` : "Rooms"}
-        subtitle="Join an open table, spectate active matches, or create a new room."
+        title={game ? `${game.shortName} Tables` : "Tables"}
+        subtitle="Join a table or make one."
         actionIcon="add"
-        actionLabel="Create"
+        actionLabel="New"
         onAction={() =>
           dispatch({ type: "NAVIGATE", route: { name: "create", gameId: selectedGameId } })
         }
@@ -62,10 +62,10 @@ export function RoomsScreen({ route }: RoomsScreenProps) {
 
       {rooms.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyTitle}>No rooms yet</Text>
-          <Text style={styles.emptyText}>Create the first table for this game.</Text>
+          <Text style={styles.emptyTitle}>No tables yet</Text>
+          <Text style={styles.emptyText}>Make the first one.</Text>
           <ActionButton
-            title="Create room"
+            title="New table"
             icon="add"
             onPress={() =>
               dispatch({

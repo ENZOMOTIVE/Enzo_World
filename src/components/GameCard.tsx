@@ -1,40 +1,42 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { colors, radii, shadows, spacing, typography } from "../core/theme";
 import { ArenaGame } from "../domain/games/catalog";
-import { StatusPill } from "./StatusPill";
+import { ActionButton } from "./ActionButton";
 
 interface GameCardProps {
   game: ArenaGame;
-  onPress: () => void;
+  onPlay: () => void;
+  onBrowseRooms?: () => void;
 }
 
-export function GameCard({ game, onPress }: GameCardProps) {
+export function GameCard({ game, onPlay, onBrowseRooms }: GameCardProps) {
   return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.card,
-        { borderColor: pressed ? game.accentColor : colors.border }
-      ]}
-    >
-      <View style={[styles.iconWrap, { backgroundColor: `${game.accentColor}24` }]}>
-        <Ionicons name={game.icon} color={game.accentColor} size={28} />
-      </View>
-      <View style={styles.body}>
-        <View style={styles.titleRow}>
+    <View style={[styles.card, { borderColor: game.accentColor }]}>
+      <View style={styles.topRow}>
+        <View style={[styles.iconWrap, { backgroundColor: `${game.accentColor}24` }]}>
+          <Ionicons name={game.icon} color={game.accentColor} size={30} />
+        </View>
+        <View style={styles.body}>
           <Text style={styles.title}>{game.name}</Text>
-          <StatusPill status={game.availability} />
-        </View>
-        <Text style={styles.tagline}>{game.tagline}</Text>
-        <View style={styles.metaRow}>
-          <Text style={styles.meta}>{game.minPlayers}-{game.maxPlayers} players</Text>
-          <Text style={styles.meta}>{game.averageDuration}</Text>
-          <Text style={styles.meta}>{game.buyInLabel}</Text>
+          <Text style={styles.tagline}>{game.tagline}</Text>
         </View>
       </View>
-    </Pressable>
+
+      <View style={styles.actions}>
+        <ActionButton title="Play" icon="play" onPress={onPlay} style={styles.playButton} />
+        {onBrowseRooms ? (
+          <ActionButton
+            title="Tables"
+            icon="people-outline"
+            variant="secondary"
+            onPress={onBrowseRooms}
+            style={styles.tablesButton}
+          />
+        ) : null}
+      </View>
+    </View>
   );
 }
 
@@ -44,47 +46,43 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: radii.md,
     borderWidth: 1,
+    gap: spacing.lg,
+    padding: spacing.lg
+  },
+  topRow: {
+    alignItems: "center",
     flexDirection: "row",
-    gap: spacing.md,
-    padding: spacing.md
+    gap: spacing.md
   },
   iconWrap: {
     alignItems: "center",
     borderRadius: radii.md,
-    height: 54,
+    height: 62,
     justifyContent: "center",
-    width: 54
+    width: 62
   },
   body: {
     flex: 1,
-    gap: spacing.sm
-  },
-  titleRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    flexWrap: "wrap",
     gap: spacing.sm,
-    justifyContent: "space-between"
   },
   title: {
     color: colors.text,
-    flexShrink: 1,
-    fontSize: typography.subheading,
-    fontWeight: "800"
+    fontSize: typography.heading,
+    fontWeight: "900"
   },
   tagline: {
     color: colors.textMuted,
     fontSize: typography.body,
     lineHeight: 21
   },
-  metaRow: {
+  actions: {
     flexDirection: "row",
-    flexWrap: "wrap",
     gap: spacing.sm
   },
-  meta: {
-    color: colors.textSubtle,
-    fontSize: typography.small,
-    fontWeight: "700"
+  playButton: {
+    flex: 1
+  },
+  tablesButton: {
+    flex: 1
   }
 });

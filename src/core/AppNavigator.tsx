@@ -21,10 +21,12 @@ export function AppNavigator() {
       {route.name === "rooms" ? <RoomsScreen route={route} /> : null}
       {route.name === "create" ? <CreateRoomScreen route={route} /> : null}
       {route.name === "room" ? <RoomScreen route={route} /> : null}
-      <ArenaTabBar
-        route={route}
-        onNavigate={(nextRoute) => dispatch({ type: "NAVIGATE", route: nextRoute })}
-      />
+      {route.name !== "room" ? (
+        <ArenaTabBar
+          route={route}
+          onNavigate={(nextRoute) => dispatch({ type: "NAVIGATE", route: nextRoute })}
+        />
+      ) : null}
     </View>
   );
 }

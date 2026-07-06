@@ -8,21 +8,33 @@ import { ActionButton } from "./ActionButton";
 interface CarromBoardProps {
   carrom: ArenaCarromState;
   players: Record<string, ArenaPlayer>;
+  onCoinPress: (coinId: string) => void;
   onPowerChange: (power: number) => void;
   onShoot: () => void;
 }
 
-const powerOptions = [35, 55, 75, 95];
+const powerOptions = [
+  { label: "Soft", value: 35 },
+  { label: "Good", value: 60 },
+  { label: "Hard", value: 82 },
+  { label: "Smash", value: 100 }
+];
 
 export function CarromBoard({
   carrom,
   players,
+  onCoinPress,
   onPowerChange,
   onShoot
 }: CarromBoardProps) {
   const { width } = useWindowDimensions();
-  const boardSize = Math.min(width - spacing.lg * 2, 360);
+  const boardSize = Math.min(width - spacing.lg * 2, 324);
   const activePlayer = players[carrom.activePlayerId];
+  const selectedCoin = carrom.coins.find(
+    (coin) => coin.id === carrom.selectedCoinId && !coin.pocketedBy
+  );
+  const aimLine = selectedCoin ? getAimLine(boardSize, carrom.strikerX, selectedCoin) : undefined;
+  const winner = carrom.winnerId ? players[carrom.winnerId] : undefined;
 
   return (
     <View style={styles.wrap}>
@@ -33,9 +45,27 @@ export function CarromBoard({
         <Pocket bottom={10} right={10} />
         <View style={styles.centerRing} />
         <View style={styles.baseLine} />
+        {aimLine ? (
+          <View
+            style={[
+              styles.aimLine,
+              {
+                left: aimLine.left,
+                top: aimLine.top,
+                transform: [{ rotate: `${aimLine.angle}rad` }],
+                width: aimLine.length
+              }
+            ]}
+          />
+        ) : null}
         <View style={[styles.striker, { left: `${carrom.strikerX}%` }]} />
         {carrom.coins.map((coin) => (
-          <CoinView key={coin.id} coin={coin} />
+          <CoinView
+            key={coin.id}
+            coin={coin}
+            selected={coin.id === selectedCoin?.id}
+            onPress={() => onCoinPress(coin.id)}
+          />
         ))}
       </View>
 
@@ -60,30 +90,42 @@ export function CarromBoard({
         <Text style={styles.activePlayer}>
           Turn: {activePlayer?.displayName ?? "Waiting"}
         </Text>
+        <Text style={styles.targetText}>
+          Target: {selectedCoin ? coinLabel(selectedCoin.color) : carrom.result ? "Board clear" : "Pick coin"}
+        </Text>
         <View style={styles.powerRow}>
           {powerOptions.map((power) => (
             <Pressable
-              key={power}
-              onPress={() => onPowerChange(power)}
+              key={power.value}
+              onPress={() => onPowerChange(power.value)}
               style={[
                 styles.powerButton,
-                carrom.power === power ? styles.powerButtonActive : undefined
+                carrom.power === power.value ? styles.powerButtonActive : undefined
               ]}
             >
               <Text
                 style={[
                   styles.powerText,
-                  carrom.power === power ? styles.powerTextActive : undefined
+                  carrom.power === power.value ? styles.powerTextActive : undefined
                 ]}
               >
-                {power}
+                {power.label}
               </Text>
             </Pressable>
           ))}
         </View>
-        <ActionButton title="Shoot" icon="navigate" onPress={onShoot} />
+        <ActionButton
+          title="Shoot"
+          icon="navigate"
+          disabled={!selectedCoin || Boolean(carrom.result)}
+          onPress={onShoot}
+        />
         {carrom.lastShot ? <Text style={styles.lastShot}>{carrom.lastShot}</Text> : null}
-        {carrom.result ? <Text style={styles.result}>{carrom.result}</Text> : null}
+        {carrom.result ? (
+          <Text style={styles.result}>
+            {winner ? `${winner.displayName} wins.` : carrom.result}
+          </Text>
+        ) : null}
       </View>
     </View>
   );
@@ -103,7 +145,15 @@ function Pocket({
   return <View style={[styles.pocket, { top, right, bottom, left }]} />;
 }
 
-function CoinView({ coin }: { coin: CarromCoin }) {
+function CoinView({
+  coin,
+  selected,
+  onPress
+}: {
+  coin: CarromCoin;
+  selected: boolean;
+  onPress: () => void;
+}) {
   if (coin.pocketedBy) {
     return null;
   }
@@ -115,9 +165,11 @@ function CoinView({ coin }: { coin: CarromCoin }) {
   }[coin.color];
 
   return (
-    <View
+    <Pressable
+      onPress={onPress}
       style={[
         styles.coin,
+        selected ? styles.selectedCoin : undefined,
         {
           backgroundColor: palette.background,
           borderColor: palette.border,
@@ -127,6 +179,32 @@ function CoinView({ coin }: { coin: CarromCoin }) {
       ]}
     />
   );
+}
+
+function getAimLine(boardSize: number, strikerX: number, coin: CarromCoin) {
+  const startX = (strikerX / 100) * boardSize;
+  const startY = boardSize * 0.86;
+  const endX = (coin.x / 100) * boardSize;
+  const endY = (coin.y / 100) * boardSize;
+  const dx = endX - startX;
+  const dy = endY - startY;
+  const length = Math.max(24, Math.hypot(dx, dy));
+  const angle = Math.atan2(dy, dx);
+
+  return {
+    angle,
+    left: startX - length / 2,
+    length,
+    top: startY - 1
+  };
+}
+
+function coinLabel(color: CarromCoin["color"]) {
+  if (color === "queen") {
+    return "Queen";
+  }
+
+  return color === "white" ? "White" : "Black";
 }
 
 const styles = StyleSheet.create({
@@ -181,6 +259,12 @@ const styles = StyleSheet.create({
     width: 28,
     zIndex: 3
   },
+  aimLine: {
+    backgroundColor: "rgba(255, 247, 234, 0.55)",
+    height: 3,
+    position: "absolute",
+    zIndex: 2
+  },
   coin: {
     borderRadius: radii.full,
     borderWidth: 2,
@@ -190,6 +274,11 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: 24,
     zIndex: 4
+  },
+  selectedCoin: {
+    borderColor: colors.amber,
+    borderWidth: 4,
+    transform: [{ scale: 1.16 }]
   },
   scoreRow: {
     flexDirection: "row",
@@ -231,6 +320,11 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: typography.body,
     fontWeight: "800"
+  },
+  targetText: {
+    color: colors.textMuted,
+    fontSize: typography.body,
+    fontWeight: "700"
   },
   powerRow: {
     flexDirection: "row",

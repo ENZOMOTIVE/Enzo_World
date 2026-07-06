@@ -22,19 +22,19 @@ const tabs: Array<{
     isActive: (route) => route.name === "home"
   },
   {
-    label: "Games",
+    label: "Play",
     icon: "grid-outline",
     route: { name: "games" },
     isActive: (route) => route.name === "games"
   },
   {
-    label: "Rooms",
+    label: "Tables",
     icon: "people-outline",
     route: { name: "rooms" },
     isActive: (route) => route.name === "rooms" || route.name === "room"
   },
   {
-    label: "Create",
+    label: "New",
     icon: "add-circle-outline",
     route: { name: "create" },
     isActive: (route) => route.name === "create"

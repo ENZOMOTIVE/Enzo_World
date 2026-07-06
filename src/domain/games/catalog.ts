@@ -1,6 +1,6 @@
 export type GameId = "chess" | "carrom";
 
-export type GameAvailability = "playable" | "prototype";
+export type GameAvailability = "playable";
 
 export interface ArenaGame {
   id: GameId;
@@ -20,31 +20,29 @@ export interface ArenaGame {
 export const arenaGames: ArenaGame[] = [
   {
     id: "chess",
-    name: "Chess Blitz",
+    name: "Chess",
     shortName: "Chess",
-    tagline: "Classic two-player arena chess with legal move validation.",
-    description:
-      "Ranked-ready chess rooms with readiness, turns, move history, and local multiplayer flow.",
+    tagline: "Move pieces, protect the king, win the game.",
+    description: "A quick two-player chess board for the same phone or emulator.",
     minPlayers: 2,
     maxPlayers: 2,
     averageDuration: "10 min",
-    buyInLabel: "Free / Coins",
+    buyInLabel: "Free",
     availability: "playable",
     accentColor: "#F2A93B",
     icon: "grid-outline"
   },
   {
     id: "carrom",
-    name: "Carrom Strike",
+    name: "Carrom",
     shortName: "Carrom",
-    tagline: "Fast local carrom prototype with pocket scoring and turn flow.",
-    description:
-      "A lightweight digital carrom board that models pockets, scoring, turns, and room events.",
+    tagline: "Choose power, shoot, and pocket coins.",
+    description: "A quick two-player carrom board for short local matches.",
     minPlayers: 2,
     maxPlayers: 2,
     averageDuration: "8 min",
-    buyInLabel: "Free / Coins",
-    availability: "prototype",
+    buyInLabel: "Free",
+    availability: "playable",
     accentColor: "#2EC7A0",
     icon: "disc-outline"
   }

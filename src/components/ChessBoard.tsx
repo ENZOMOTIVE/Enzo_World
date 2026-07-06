@@ -6,10 +6,12 @@ import {
   ChessPieceView,
   getChessBoard
 } from "../domain/games/chess";
+import { ActionButton } from "./ActionButton";
 
 interface ChessBoardProps {
   chess: ArenaChessState;
   onSquarePress: (square: string) => void;
+  onUndo?: () => void;
 }
 
 const pieceSymbols: Record<string, string> = {
@@ -27,7 +29,7 @@ const pieceSymbols: Record<string, string> = {
   bp: "♟"
 };
 
-export function ChessBoard({ chess, onSquarePress }: ChessBoardProps) {
+export function ChessBoard({ chess, onSquarePress, onUndo }: ChessBoardProps) {
   const board = getChessBoard(chess.fen);
   const { width } = useWindowDimensions();
   const boardSize = Math.min(width - spacing.lg * 2, 360);
@@ -61,7 +63,17 @@ export function ChessBoard({ chess, onSquarePress }: ChessBoardProps) {
                     isLastMove ? styles.lastMoveSquare : undefined
                   ]}
                 >
-                  {piece ? <Piece piece={piece} /> : null}
+                  {isCoordinateSquare(rankIndex, fileIndex) ? (
+                    <Text
+                      style={[
+                        styles.coordinate,
+                        { color: isDark ? "rgba(255, 247, 234, 0.68)" : "rgba(17, 16, 14, 0.58)" }
+                      ]}
+                    >
+                      {getCoordinateLabel(rankIndex, fileIndex)}
+                    </Text>
+                  ) : null}
+                  {piece ? <Piece piece={piece} size={squareSize} /> : null}
                   {isLegalTarget ? <View style={styles.legalDot} /> : null}
                 </Pressable>
               );
@@ -70,11 +82,25 @@ export function ChessBoard({ chess, onSquarePress }: ChessBoardProps) {
         ))}
       </View>
 
-      <View style={styles.metaRow}>
-        <Text style={styles.metaText}>Turn: {chess.turn === "w" ? "White" : "Black"}</Text>
-        <Text style={styles.metaText}>
-          Moves: {chess.moveHistory.length === 0 ? "0" : chess.moveHistory.length}
-        </Text>
+      <View style={styles.panel}>
+        <View style={styles.metaBlock}>
+          <Text style={styles.turnText}>{chess.turn === "w" ? "White" : "Black"} to move</Text>
+          <Text style={styles.metaText}>
+            {chess.moveHistory.length === 0
+              ? "First move"
+              : `${chess.moveHistory.length} move${chess.moveHistory.length === 1 ? "" : "s"}`}
+          </Text>
+        </View>
+        {onUndo ? (
+          <ActionButton
+            title="Undo"
+            icon="arrow-undo"
+            compact
+            variant="secondary"
+            disabled={chess.moveHistory.length === 0}
+            onPress={onUndo}
+          />
+        ) : null}
       </View>
       {chess.lastMove ? (
         <Text style={styles.lastMove}>Last move: {chess.lastMove.san}</Text>
@@ -84,11 +110,19 @@ export function ChessBoard({ chess, onSquarePress }: ChessBoardProps) {
   );
 }
 
-function Piece({ piece }: { piece: ChessPieceView }) {
+function Piece({ piece, size }: { piece: ChessPieceView; size: number }) {
   const symbol = pieceSymbols[`${piece.color}${piece.type}`];
 
   return (
-    <Text style={[styles.piece, { color: piece.color === "w" ? "#FFF4DA" : "#15110D" }]}>
+    <Text
+      style={[
+        styles.piece,
+        {
+          color: piece.color === "w" ? "#FFF4DA" : "#15110D",
+          fontSize: Math.max(26, size * 0.72)
+        }
+      ]}
+    >
       {symbol}
     </Text>
   );
@@ -97,6 +131,25 @@ function Piece({ piece }: { piece: ChessPieceView }) {
 function getSquareName(rankIndex: number, fileIndex: number) {
   const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
   return `${files[fileIndex]}${8 - rankIndex}`;
+}
+
+function isCoordinateSquare(rankIndex: number, fileIndex: number) {
+  return fileIndex === 0 || rankIndex === 7;
+}
+
+function getCoordinateLabel(rankIndex: number, fileIndex: number) {
+  const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
+  const labels = [];
+
+  if (fileIndex === 0) {
+    labels.push(String(8 - rankIndex));
+  }
+
+  if (rankIndex === 7) {
+    labels.push(files[fileIndex]);
+  }
+
+  return labels.join("");
 }
 
 const styles = StyleSheet.create({
@@ -115,7 +168,8 @@ const styles = StyleSheet.create({
   },
   square: {
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    position: "relative"
   },
   selectedSquare: {
     borderColor: colors.amber,
@@ -134,15 +188,38 @@ const styles = StyleSheet.create({
     width: 14
   },
   piece: {
-    fontSize: 35,
     fontWeight: "900",
     textShadowColor: "rgba(0, 0, 0, 0.24)",
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 2
   },
-  metaRow: {
+  coordinate: {
+    fontSize: 9,
+    fontWeight: "900",
+    left: 3,
+    position: "absolute",
+    top: 2
+  },
+  panel: {
+    alignItems: "center",
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    borderWidth: 1,
     flexDirection: "row",
-    gap: spacing.md
+    gap: spacing.md,
+    justifyContent: "space-between",
+    padding: spacing.md,
+    width: "100%"
+  },
+  metaBlock: {
+    flex: 1,
+    gap: spacing.xs
+  },
+  turnText: {
+    color: colors.text,
+    fontSize: typography.body,
+    fontWeight: "900"
   },
   metaText: {
     color: colors.textMuted,

@@ -16,6 +16,7 @@ export interface ArenaChessState {
   selectedSquare?: string;
   legalTargets: string[];
   moveHistory: string[];
+  positionHistory: string[];
   lastMove?: {
     from: string;
     to: string;
@@ -28,7 +29,7 @@ const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
 export function createChessState(): ArenaChessState {
   const chess = new Chess();
-  return stateFromChess(chess, []);
+  return stateFromChess(chess, [], []);
 }
 
 export function getChessBoard(fen: string): Array<Array<ChessPieceView | null>> {
@@ -106,7 +107,10 @@ export function makeChessMove(
       };
     }
 
-    const nextState = stateFromChess(chess, [...state.moveHistory, move.san]);
+    const nextState = stateFromChess(chess, [
+      ...state.moveHistory,
+      move.san
+    ], [...state.positionHistory, state.fen]);
     nextState.lastMove = {
       from,
       to,
@@ -130,7 +134,29 @@ export function makeChessMove(
   }
 }
 
-function stateFromChess(chess: Chess, moveHistory: string[]): ArenaChessState {
+export function undoChessMove(state: ArenaChessState): ArenaChessState {
+  const previousFen = state.positionHistory[state.positionHistory.length - 1];
+
+  if (!previousFen) {
+    return state;
+  }
+
+  const chess = new Chess(previousFen);
+  return {
+    ...stateFromChess(
+      chess,
+      state.moveHistory.slice(0, -1),
+      state.positionHistory.slice(0, -1)
+    ),
+    lastMove: undefined
+  };
+}
+
+function stateFromChess(
+  chess: Chess,
+  moveHistory: string[],
+  positionHistory: string[]
+): ArenaChessState {
   const result = getChessResult(chess);
 
   return {
@@ -139,6 +165,7 @@ function stateFromChess(chess: Chess, moveHistory: string[]): ArenaChessState {
     turn: chess.turn() as ChessColor,
     legalTargets: [],
     moveHistory,
+    positionHistory,
     result
   };
 }
