@@ -1,88 +1,70 @@
-# Enzo World
+# Enzo World Arena
 
-> Enzo World is a mobile arcade project for collecting multiple games inside one React Native or Expo-style app.
+Enzo World Arena is a React Native + Expo board-game arena. The app is Android-first, simple enough for kids to use, and still compatible with iOS.
 
-## The Story
+## Current App Slice
 
-Enzo World starts with a simple goal: shape a mobile experience that is easy to install, test, and hand off. Its shape tells the same story: the product interface, the mobile surface, and the documentation source live close enough together that a maintainer can see the project as a whole before diving into individual folders.
+- Expo SDK 57 TypeScript app.
+- One-tap local play from the home screen.
+- Local table state with create, join, ready, start, leave, and match events.
+- Game catalog with Chess Blitz and Carrom Strike.
+- Chess uses `chess.js` for legal moves, turns, undo, move history, and check/draw results.
+- Carrom supports coin selection, aim line, power choice, pocket scoring, turns, and match completion.
+- No database yet. The state layer is intentionally isolated so a backend adapter can replace local reducer actions later.
 
-## Detailed Description
-
-Enzo World is a mobile arcade project for collecting multiple games inside one React Native or Expo-style app. This README is meant to explain the project like a handoff note: what the idea is, why the repository exists, and how someone can start working with it without opening every file first.
-
-The mobile workflow matters as much as the code. Device setup, emulator notes, signing expectations, and release commands should be kept visible so the app can move from local development to a real handset without guesswork.
-
-At the top level, the most important entry points are `App.tsx`, `app.json`, `assets`, `babel.config.js`, `docs`, and `eas.json`. Together they show the current boundary of the project and make it easier to separate product code, support files, documentation, and experiments.
-
-The declared Node surfaces include the root package (scripts: `start`, `android`, `ios`, `web`, `typecheck`). Those package files are the best starting points for understanding how the app runs, builds, or validates itself.
-
-The visible stack currently points to `React`, `React Native / Expo`, `Node.js`, `TypeScript`, and `JavaScript`. Keep this list honest as the project changes so the README remains useful as a first technical map.
-
-## What It Includes
-
-- A user-facing surface for the product, demo, dashboard, or static experience.
-- Mobile-ready project structure for wallet, Android, or app-focused development.
-- Documentation sources that can be previewed, exported, or published.
-
-## How It Is Put Together
-
-| Path | Role |
-| --- | --- |
-| `.gitattributes` | project file or folder |
-| `.gitignore` | ignored local, dependency, and build files |
-| `App.tsx` | TypeScript source |
-| `app.json` | project file or folder |
-| `assets` | static assets and presentation files |
-| `babel.config.js` | JavaScript source |
-| `docs` | documentation source |
-| `eas.json` | project file or folder |
-| `index.js` | JavaScript source |
-| `package-lock.json` | locked dependency versions |
-| `package.json` | Node package scripts and dependencies |
-| `src` | project file or folder |
-
-## Local Development
-
-```bash
-git clone https://github.com/ENZOMOTIVE/Enzo_World.git
-cd Enzo_World
-```
+## Run Locally
 
 ```bash
 npm install
-npm start
+npm run android
 ```
 
-## Command Surface
+For iOS:
 
-| Area | Commands |
-| --- | --- |
-| `package.json` | `start`, `android`, `ios`, `web`, `typecheck` |
+```bash
+npm run ios
+```
 
-## Configuration
+For type checks:
 
-- Keep signing keys, platform credentials, and build profiles outside the repository.
+```bash
+npm run typecheck
+```
 
-## Quality Checks
+## Android Build Path
 
-- From the repository root, run `npm run typecheck`.
+The emulator/dev build runs with:
 
-## Where To Take It Next
+```bash
+npm run android
+```
 
-- Add screenshots or a short user flow so visitors can see the interface before running it.
-- Add emulator, device, signing, and release notes for the mobile workflow.
-- Keep setup commands current whenever dependencies, scripts, or deployment targets change.
-- Record important product decisions here so the repository keeps its story as the code evolves.
+Preview APK and production build profiles are defined in `eas.json`:
 
-## Project Metadata
+```bash
+npx eas build --platform android --profile preview
+npx eas build --platform android --profile production
+```
 
-| Field | Details |
-| --- | --- |
-| Repository | `ENZOMOTIVE/Enzo_World` |
-| Categories | `Full Stack`, `Mobile` |
-| Primary stack | React, React Native / Expo, Node.js, TypeScript, JavaScript |
+## Project Structure
 
+```text
+src/
+  app/          App shell, navigator, theme tokens
+  components/   Reusable UI and game board components
+  domain/       Game engines, room types, room reducer, mock data
+  screens/      Home, games, rooms, create-room, room detail
+  state/        React context provider for arena state
+docs/
+  ARCHITECTURE.md
+  ANDROID_RELEASE.md
+  ROADMAP.md
+```
 
-## License
+## Notes
 
-No license file is currently committed. Add one before distributing this project publicly.
+- Expo SDK 57 targets React Native 0.86 and React 19.2.3.
+- The room reducer is the current source of truth. Keep network/database code outside screens when it is added.
+- Use `docs/ARCHITECTURE.md` before extending room or game behavior.
+
+Official Expo SDK reference: https://docs.expo.dev/versions/latest/
