@@ -1,70 +1,90 @@
-# Enzo World Arena
+# Enzo World
 
-Enzo World Arena is a React Native + Expo board-game arena. The app is Android-first, simple enough for kids to use, and still compatible with iOS.
+## Project Tags
 
-## Current App Slice
+- `Full Stack`
+- `Mobile`
 
-- Expo SDK 57 TypeScript app.
-- One-tap local play from the home screen.
-- Local table state with create, join, ready, start, leave, and match events.
-- Game catalog with Chess Blitz and Carrom Strike.
-- Chess uses `chess.js` for legal moves, turns, undo, move history, and check/draw results.
-- Carrom supports coin selection, aim line, power choice, pocket scoring, turns, and match completion.
-- No database yet. The state layer is intentionally isolated so a backend adapter can replace local reducer actions later.
+## Overview
 
-## Run Locally
+Enzo World is a mobile application project with native or React Native/Expo structure.
 
-```bash
-npm install
-npm run android
-```
+## Features
 
-For iOS:
+- User-facing frontend or app interface
+- Backend service, API, websocket, bot, or server workflow
+- Mobile app structure for Android, Expo, or React Native development
 
-```bash
-npm run ios
-```
+## Tech Stack
 
-For type checks:
-
-```bash
-npm run typecheck
-```
-
-## Android Build Path
-
-The emulator/dev build runs with:
-
-```bash
-npm run android
-```
-
-Preview APK and production build profiles are defined in `eas.json`:
-
-```bash
-npx eas build --platform android --profile preview
-npx eas build --platform android --profile production
-```
+- React
+- Expo
+- React Native
+- Node.js
+- TypeScript
+- JavaScript
 
 ## Project Structure
 
-```text
-src/
-  app/          App shell, navigator, theme tokens
-  components/   Reusable UI and game board components
-  domain/       Game engines, room types, room reducer, mock data
-  screens/      Home, games, rooms, create-room, room detail
-  state/        React context provider for arena state
-docs/
-  ARCHITECTURE.md
-  ANDROID_RELEASE.md
-  ROADMAP.md
+- `.gitattributes` - project file or directory
+- `.gitignore` - project file or directory
+- `App.tsx` - project file or directory
+- `app.json` - project file or directory
+- `assets` - static assets or styles
+- `babel.config.js` - project file or directory
+- `docs` - documentation source content
+- `eas.json` - project file or directory
+- `index.js` - project file or directory
+- `package-lock.json` - project file or directory
+- `package.json` - Node package metadata and scripts
+- `src` - project file or directory
+- `tsconfig.json` - project file or directory
+
+## Getting Started
+
+### Prerequisites
+
+- Git
+- Node.js 18+
+- Android Studio, Expo CLI, or platform tooling as required by the app
+
+### Setup and Run
+
+```bash
+git clone https://github.com/ENZOMOTIVE/Enzo_World.git
+cd Enzo_World
 ```
 
-## Notes
+```bash
+npm install
+npm start
+```
 
-- Expo SDK 57 targets React Native 0.86 and React 19.2.3.
-- The room reducer is the current source of truth. Keep network/database code outside screens when it is added.
-- Use `docs/ARCHITECTURE.md` before extending room or game behavior.
+## Commands
 
-Official Expo SDK reference: https://docs.expo.dev/versions/latest/
+- `package.json`: `start`, `android`, `ios`, `web`, `typecheck`
+
+## Configuration
+
+- Document required service ports, database URLs, and API credentials before deployment.
+- Keep platform-specific signing credentials and mobile build secrets outside the repository.
+
+## Testing and Quality
+
+- No automated test workflow is declared yet; add tests and document the command here as the project matures.
+
+## Documentation Notes
+
+- Keep this README aligned with the actual source layout and commands.
+- Add screenshots, API examples, contract addresses, or deployment links when they become stable.
+- Update the project tags when the scope changes.
+
+## Contributing
+
+1. Create a focused branch for the change.
+2. Update code and documentation together.
+3. Run the relevant checks before opening a pull request.
+
+## License
+
+No license file is currently committed. Add one before distributing this project publicly.
