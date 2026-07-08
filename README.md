@@ -1,54 +1,35 @@
 # Enzo World
 
-## Project Tags
+> Enzo World is a mobile application project with the structure needed for Android, wallet, or React Native style development.
 
-- `Full Stack`
-- `Mobile`
+## The Story
 
-## Overview
+Enzo World starts with a simple goal: shape a mobile experience that is easy to install, test, and hand off. Its shape tells the same story: the product interface, the mobile surface, and the documentation source live close enough together that a maintainer can see the project as a whole before diving into individual folders.
 
-Enzo World is a mobile application project with native or React Native/Expo structure.
+## What It Includes
 
-## Features
+- A user-facing surface for the product, demo, dashboard, or static experience.
+- Mobile-ready project structure for wallet, Android, or app-focused development.
+- Documentation sources that can be previewed, exported, or published.
 
-- User-facing frontend or app interface
-- Backend service, API, websocket, bot, or server workflow
-- Mobile app structure for Android, Expo, or React Native development
+## How It Is Put Together
 
-## Tech Stack
+| Path | Role |
+| --- | --- |
+| `.gitattributes` | project file or folder |
+| `.gitignore` | ignored local, dependency, and build files |
+| `App.tsx` | TypeScript source |
+| `app.json` | project file or folder |
+| `assets` | static assets and presentation files |
+| `babel.config.js` | JavaScript source |
+| `docs` | documentation source |
+| `eas.json` | project file or folder |
+| `index.js` | JavaScript source |
+| `package-lock.json` | locked dependency versions |
+| `package.json` | Node package scripts and dependencies |
+| `src` | project file or folder |
 
-- React
-- Expo
-- React Native
-- Node.js
-- TypeScript
-- JavaScript
-
-## Project Structure
-
-- `.gitattributes` - project file or directory
-- `.gitignore` - project file or directory
-- `App.tsx` - project file or directory
-- `app.json` - project file or directory
-- `assets` - static assets or styles
-- `babel.config.js` - project file or directory
-- `docs` - documentation source content
-- `eas.json` - project file or directory
-- `index.js` - project file or directory
-- `package-lock.json` - project file or directory
-- `package.json` - Node package metadata and scripts
-- `src` - project file or directory
-- `tsconfig.json` - project file or directory
-
-## Getting Started
-
-### Prerequisites
-
-- Git
-- Node.js 18+
-- Android Studio, Expo CLI, or platform tooling as required by the app
-
-### Setup and Run
+## Local Development
 
 ```bash
 git clone https://github.com/ENZOMOTIVE/Enzo_World.git
@@ -60,30 +41,35 @@ npm install
 npm start
 ```
 
-## Commands
+## Command Surface
 
-- `package.json`: `start`, `android`, `ios`, `web`, `typecheck`
+| Area | Commands |
+| --- | --- |
+| `package.json` | `start`, `android`, `ios`, `web`, `typecheck` |
 
 ## Configuration
 
-- Document required service ports, database URLs, and API credentials before deployment.
-- Keep platform-specific signing credentials and mobile build secrets outside the repository.
+- Keep signing keys, platform credentials, and build profiles outside the repository.
 
-## Testing and Quality
+## Quality Checks
 
-- No automated test workflow is declared yet; add tests and document the command here as the project matures.
+- From the repository root, run `npm run typecheck`.
 
-## Documentation Notes
+## Where To Take It Next
 
-- Keep this README aligned with the actual source layout and commands.
-- Add screenshots, API examples, contract addresses, or deployment links when they become stable.
-- Update the project tags when the scope changes.
+- Add screenshots or a short user flow so visitors can see the interface before running it.
+- Add emulator, device, signing, and release notes for the mobile workflow.
+- Keep setup commands current whenever dependencies, scripts, or deployment targets change.
+- Record important product decisions here so the repository keeps its story as the code evolves.
 
-## Contributing
+## Project Metadata
 
-1. Create a focused branch for the change.
-2. Update code and documentation together.
-3. Run the relevant checks before opening a pull request.
+| Field | Details |
+| --- | --- |
+| Repository | `ENZOMOTIVE/Enzo_World` |
+| Categories | `Full Stack`, `Mobile` |
+| Primary stack | React, React Native / Expo, Node.js, TypeScript, JavaScript |
+
 
 ## License
 
